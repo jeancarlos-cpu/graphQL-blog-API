@@ -1,49 +1,24 @@
 const uuid = require("uuid/v4");
 
 const Mutation = {
-  createUser: (parent, { data }, { db: { users } }, info) => {
-    if (users.some(user => data.email === user.email)) {
-      throw new Error("Invalid user credentials.");
-    }
-
-    const user = {
-      id: uuid(),
-      ...data
-    };
-
-    users.push(user);
-
-    return user;
+  createUser: async (parent, { data }, { prisma }, info) => {
+    const emailTaken = await prisma.$exists.user({ email: data.email });
+    if (emailTaken) throw new Error("Email taken.");
+    return prisma.createUser(data);
   },
-  deleteUser: (parent, { id }, { db: { users, posts, comments } }, info) => {
-    const userIndex = users.findIndex(user => user.id === id);
-    if (userIndex === -1) throw new Error("user not found");
-
-    const deletedUser = users.splice(userIndex, 1);
-
-    posts = posts.filter(post => {
-      const match = post.author === id;
-      match
-        ? (comments = comments.filter(comment => comment.post !== post.id))
-        : null;
-      return !match;
-    });
-
-    comments = comments.filter(comment => comment.author !== id);
-
-    return deletedUser[0];
+  deleteUser: async (parent, { id }, { prisma }, info) => {
+    const userExists = await prisma.$exists.user({ id });
+    if (!userExists) throw new Error("user not found.");
+    return prisma.deleteUser({ id });
   },
-  updateUser: (parent, { id, data }, { db: { users } }, info) => {
-    const user = users.find(user => user.id === id);
-    if (!user) throw new Error("user not found");
-
-    const isEmailTaken = users.some(user => user.email === data.email);
-    if (isEmailTaken) throw new Error("email is already taken");
-
-    // data = JSON.parse(JSON.stringify(data));
-    return Object.assign(user, data);
+  updateUser: async (parent, { id, data }, { prisma }, info) => {
+    const emailTaken = await prisma.$exists.user({ email: data.email });
+    const userExists = await prisma.$exists.user({ id });
+    if (!userExists) throw new Error("user not found.");
+    if (data.email && emailTaken) throw new Error("Email taken.");
+    return prisma.updateUser({ data, where: { id } });
   },
-  createPost: (parent, { data }, { db: { users, posts }, pubsub }, info) => {
+  createPost: (parent, { data }, { prisma }, info) => {
     if (!users.some(user => data.author === user.id)) {
       throw new Error("user not found.");
     }

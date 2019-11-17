@@ -10,7 +10,6 @@ let db = require("./db");
 const { prisma } = require("../prisma/generated/prisma-client/index");
 
 const pubsub = new PubSub();
-
 const resolvers = {
   Query,
   Mutation,
