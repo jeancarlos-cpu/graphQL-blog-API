@@ -1,0 +1,92 @@
+// prisma
+//   .createPost({
+//       title: "prisma client post",
+//       body: "hello",
+//       published: true,
+//       author: {
+//         connect: { email: "jean@hotmail.com" }
+//       }
+//   })
+//   .then(console.log)
+//   .catch(e => console.log(e))
+
+// prisma
+//   .createComment({
+//     text: "prisma client comment.",
+//     author: {
+//       connect: {
+//         email: "carlos@hotmail.com"
+//       }
+//     },
+//     post: {
+//       connect: {
+//         id: "ck338gs8t00750763f5lc0yrn"
+//       }
+//     }
+//   })
+//   .then(console.log);
+
+const createPostForUser = async (authorId, data) => {
+  const post = await prisma.createPost({
+    ...data,
+    author: {
+      connect: {id: authorId}
+    }
+  });
+
+  const user = await prisma
+    .users({
+      where: {
+        id: authorId
+      }
+    })
+    .$fragment(`fragment f on users { id name email posts {id title}}`);
+
+    return user;
+};
+
+createPostForUser(
+  "ck337se9y00400763sb6h2t5q",
+  {
+    title: "susano post",
+    body: "hello",
+    published: true
+  }
+).then(console.log)
+
+\\\\\\\\\\\\\\\\\\\\\\\
+
+const updatePostForUser = async (postId, data) => {
+  const user = await prisma.updatePost({
+    data: {...data},
+    where: {
+      id: postId
+    }
+  }).author();
+  console.log(user);
+};
+
+updatePostForUser("ck338gs8t00750763f5lc0yrn", {
+  title: "updated post using async-await"
+})
+////////////////////////////////
+
+const updatePostForUser = async (postId, data) => {
+  const postExists = await prisma.$exists.post({ id: postId });
+  if (!postExists) throw new Error("post not found");
+
+  const user = await prisma
+    .updatePost({
+      data: { ...data },
+      where: {
+        id: postId
+      }
+    })
+    .author();
+    
+  console.log(user);
+};
+
+updatePostForUser("ck338gs8t00750763f5lc0yrn", {
+  title: "updated post using async-await"
+}).catch(err => console.log(err));
