@@ -1,8 +1,8 @@
 const Comment = {
-  author: (parent, agrs, { db: { users } }, info) =>
-    users.find(user => user.id === parent.author),
-  post: (parent, agrs, { db: { posts } }, info) =>
-    posts.find(post => post.id === parent.post)
+  author: (parent, agrs, { prisma }, info) =>
+    prisma.comment({ id: parent.id }).author(),
+  post: (parent, agrs, { prisma }, info) =>
+    prisma.comment({ id: parent.id }).post()
 };
 
 module.exports = {

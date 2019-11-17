@@ -1,19 +1,13 @@
 const Query = {
-  users: (parent, args, { prisma }, info) => {
-    return prisma.users();
-    // return args.query
-    //   ? users.filter(user =>
-    //       user.name.toLowerCase().includes(args.query.toLowerCase())
-    //     )
-    //   : users;
-  },
-  posts: (parent, args, { prisma }, info) => prisma.posts(),
-    // args.query
-    //   ? posts.filter(post =>
-    //       post.title.toLowerCase().includes(args.query.toLowerCase())
-    //     )
-    //   : posts,
-  comments: (parent, args, { db: { comments } }, info) => comments
+  users: (parent, args, { prisma }, info) => 
+    prisma.users({
+      where: {
+        OR: [{ name_contains: args.query }, { email_contains: args.query }]
+      }
+    }),
+  posts: (parent, args, { prisma }, info) =>
+    prisma.posts({ where: { title_contains: args.query } }),
+  comments: (parent, args, { prisma }, info) => prisma.comments()
 };
 
 module.exports = {

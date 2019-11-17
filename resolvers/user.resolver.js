@@ -1,10 +1,10 @@
 const User = {
-  posts: (parent, args, { db: { posts } }, info) =>
-    posts.filter(post => post.author === parent.id),
-  comments: (parent, args, { db: { comments } }, info) =>
-    comments.filter(comment => comment.author === parent.id)
+  posts: async (parent, args, { prisma }, info) =>
+    prisma.user({ id: parent.id }).posts(),
+  comments: (parent, args, { prisma }, info) =>
+    prisma.user({ id: parent.id }).comments()
 };
 
-  module.exports = {
-      User
-  };
+module.exports = {
+  User
+};
