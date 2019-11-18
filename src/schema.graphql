@@ -1,8 +1,10 @@
 type Query {
-  me: User
+  me: User!
   users(query: String): [User]
   posts(query: String): [Post]
+  myPosts(query: String): [Post]
   comments: [Comment]
+  post(id: ID!): Post!
 }
 
 type Mutation {
@@ -59,7 +61,6 @@ input updatePostInput {
 
 input CreateCommentInput {
   text: String!
-  author: ID!
   post: ID!
 }
 

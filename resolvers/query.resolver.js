@@ -1,13 +1,54 @@
+const { getUserId } = require("../src/utils/getUserId");
+
 const Query = {
-  users: (parent, args, { prisma }, info) => 
+  me: (parent, args, { prisma, req }, info) => {
+    const userId = getUserId(req);
+    if (!userId) throw new Error("unable to query");
+    return prisma.user({ id: userId });
+  },
+  users: (parent, args, { prisma }, info) =>
     prisma.users({
       where: {
         OR: [{ name_contains: args.query }, { email_contains: args.query }]
       }
     }),
   posts: (parent, args, { prisma }, info) =>
-    prisma.posts({ where: { title_contains: args.query } }),
-  comments: (parent, args, { prisma }, info) => prisma.comments()
+    prisma.posts({
+      where: {
+        AND: [
+          { published: true },
+          {
+            OR: [{ title_contains: args.query }, { body_contains: args.query }]
+          }
+        ]
+      }
+    }),
+  myPosts: (parent, args, { prisma, req }, info) => {
+    const userId = getUserId(req);
+    return prisma.posts({
+      where: {
+        AND: [
+          { author: { id: userId } },
+          {
+            OR: [{ title_contains: args.query }, { body_contains: args.query }]
+          }
+        ]
+      }
+    });
+    
+  },
+  comments: (parent, args, { prisma }, info) => prisma.comments(),
+  post: async (parent, { id }, { prisma, req }, info) => {
+    const userId = getUserId(req, false);
+    const posts = await prisma.posts({
+      where: {
+        id,
+        OR: [{ published: true }, { author: { id: userId } }]
+      }
+    });
+    if (!posts.length) throw new Error("post not found");
+    return posts[0];
+  }
 };
 
 module.exports = {
