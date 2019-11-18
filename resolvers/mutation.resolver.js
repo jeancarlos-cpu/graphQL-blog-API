@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { getUserId } = require("../src/utils/getUserId");
 const secret = "fhdsjf978saf7dsfb110vvcs780432";
 
 const Mutation = {
@@ -23,46 +24,54 @@ const Mutation = {
       user
     };
   },
-  deleteUser: async (parent, { id }, { prisma }, info) => {
-    const userExists = await prisma.$exists.user({ id });
-    if (!userExists) throw new Error("user not found.");
-    return prisma.deleteUser({ id });
+  deleteUser: async (parent, args, { prisma }, info) => {
+    const userId = getUserId(req);
+    return prisma.deleteUser({ id: userId });
   },
-  updateUser: async (parent, { id, data }, { prisma }, info) => {
+  updateUser: async (parent, { data }, { prisma, req }, info) => {
+    const userId = getUserId(req);
     const emailTaken = await prisma.$exists.user({ email: data.email });
-    const userExists = await prisma.$exists.user({ id });
-    if (!userExists) throw new Error("user not found.");
     if (data.email && emailTaken) throw new Error("Email taken.");
-    return prisma.updateUser({ data, where: { id } });
+    return prisma.updateUser({ data, where: { id: userId } });
   },
-  createPost: async (parent, { data }, { prisma }, info) => {
-    const userExists = await prisma.$exists.user({ id: data.author });
+  createPost: async (parent, { data }, { prisma, req }, info) => {
+    const userId = getUserId(req);
+    const userExists = await prisma.$exists.user({ id: userId });
     if (!userExists) throw new Error("user not found.");
     return prisma.createPost({
       ...data,
       author: {
         connect: {
-          id: data.author
+          id: userId
         }
       }
     });
   },
-  deletePost: async (parent, { id }, { prisma }, info) => {
-    const postExists = await prisma.$exists.post({ id });
-    if (!postExists) throw new Error("post not found");
+  deletePost: async (parent, { id }, { prisma, req }, info) => {
+    const userId = getUserId(req);
+    const postExists = await prisma.$exists.post({
+      id,
+      author: { id: userId }
+    });
+    if (!postExists) throw new Error("unable to delete post");
     return prisma.deletePost({ id });
   },
-  updatePost: async (parent, { id, data }, { prisma }, info) => {
-    const postExists = await prisma.$exists.post({ id });
-    if (!postExists) throw new Error("post not found");
+  updatePost: async (parent, { id, data }, { prisma, req }, info) => {
+    const userId = getUserId(req);
+    const postExists = await prisma.$exists.post({
+      id,
+      author: { id: userId }
+    });
+    if (!postExists) throw new Error("unable to update post");
     return prisma.updatePost({ data, where: { id } });
   },
-  createComment: (parent, { data }, { prisma }, info) =>
-    prisma.createComment({
+  createComment: async (parent, { data }, { prisma, req }, info) => {
+    const userId = getUserId(req);
+    return prisma.createComment({
       ...data,
       author: {
         connect: {
-          id: data.author
+          id: userId
         }
       },
       post: {
@@ -70,14 +79,29 @@ const Mutation = {
           id: data.post
         }
       }
-    }),
-  deleteComment: (parent, { id }, { prisma }, info) =>
-    prisma.deleteComment({ id }),
-  updateComment: (parent, { id, data }, { prisma }, info) =>
-    prisma.updateComment({
+    });
+  },
+  deleteComment: async (parent, { id }, { prisma, req }, info) => {
+    const userId = getUserId(req);
+    const commentExists = await prisma.$exists.comment({
+      id,
+      author: { id: userId }
+    });
+    if (!commentExists) throw new Error("unable to delete comment");
+    return prisma.deleteComment({ id });
+  },
+  updateComment: async (parent, { id, data }, { prisma, req }, info) => {
+    const userId = getUserId(req);
+    const commentExists = await prisma.$exists.comment({
+      id,
+      author: { id: userId }
+    });
+    if (!commentExists) throw new Error("unable to delete comment");
+    return prisma.updateComment({
       data,
       where: { id }
-    })
+    });
+  }
 };
 
 module.exports = {

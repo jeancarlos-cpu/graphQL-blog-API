@@ -22,11 +22,12 @@ const resolvers = {
 const server = new GraphQLServer({
   typeDefs: "./src/schema.graphql",
   resolvers,
-  context: {
+  context: req => ({
     db,
     prisma,
-    pubsub
-  }
+    pubsub,
+    req
+  })
 });
 
 server.start(() => {
