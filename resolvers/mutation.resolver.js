@@ -1,16 +1,16 @@
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const { getUserId } = require("../src/utils/getUserId");
-const secret = "fhdsjf978saf7dsfb110vvcs780432";
+const { generateToken } = require("../src/utils/generateToken");
+const { hashPassword } = require("../src/utils/hashPassword");
 
 const Mutation = {
   createUser: async (parent, { data }, { prisma }, info) => {
     const emailTaken = await prisma.$exists.user({ email: data.email });
     if (emailTaken) throw new Error("Email taken.");
-    const hash = await bcrypt.hash(data.password, 10);
+    const hash = await hashPassword(data.password);
     const user = await prisma.createUser({ ...data, password: hash });
     return {
-      token: jwt.sign({ userId: user.id }, secret),
+      token: generateToken(user.id),
       user
     };
   },
@@ -20,7 +20,7 @@ const Mutation = {
     const isMatch = await bcrypt.compare(data.password, user.password);
     if (!isMatch) throw new Error("credentials not found");
     return {
-      token: jwt.sign({ userId: user.id }, secret),
+      token: generateToken(user.id),
       user
     };
   },
@@ -32,7 +32,11 @@ const Mutation = {
     const userId = getUserId(req);
     const emailTaken = await prisma.$exists.user({ email: data.email });
     if (data.email && emailTaken) throw new Error("Email taken.");
-    return prisma.updateUser({ data, where: { id: userId } });
+    if (data.password) data.password = await hashPassword(data.password);
+    return prisma.updateUser({
+      data,
+      where: { id: userId }
+    });
   },
   createPost: async (parent, { data }, { prisma, req }, info) => {
     const userId = getUserId(req);
@@ -63,10 +67,17 @@ const Mutation = {
       author: { id: userId }
     });
     if (!postExists) throw new Error("unable to update post");
+    if (data.published !== undefined && !data.published)
+      await prisma.deleteManyComments({ post: { id } });
     return prisma.updatePost({ data, where: { id } });
   },
   createComment: async (parent, { data }, { prisma, req }, info) => {
     const userId = getUserId(req);
+    const isPostPublished = await prisma.$exists.post({
+      id: data.post,
+      published: true
+    });
+    if (!isPostPublished) throw new Error("unable to comment");
     return prisma.createComment({
       ...data,
       author: {

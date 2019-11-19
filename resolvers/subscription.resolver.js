@@ -1,3 +1,5 @@
+const { getUserId } = require("../src/utils/getUserId");
+
 const Subscription = {
   comment: {
     subscribe: (parent, { postId }, { prisma }, info) =>
@@ -10,6 +12,13 @@ const Subscription = {
   post: {
     subscribe: (parent, args, { prisma }, info) =>
       prisma.$subscribe.post({ node: { published: true } }),
+    resolve: payload => payload
+  },
+  myPost: {
+    subscribe: (parent, args, { prisma, req }, info) => {
+      userId = getUserId(req);
+      return prisma.$subscribe.post({ node: { author: { id: userId } } });
+    },
     resolve: payload => payload
   }
 };

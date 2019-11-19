@@ -5,3 +5,5 @@ secret: supersupersecret
 generate:
   - generator: javascript-client
     output: ./generated/prisma-client/
+  - generator: schema
+    output: ./generated/prisma.graphql

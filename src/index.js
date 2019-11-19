@@ -1,23 +1,10 @@
-const { GraphQLServer, PubSub } = require("graphql-yoga");
 // const { RedisPubSub } = require("graphql-redis-subscriptions");
-const { Query } = require("../resolvers/query.resolver");
-const { Mutation } = require("../resolvers/mutation.resolver");
-const { User } = require("../resolvers/user.resolver");
-const { Post } = require("../resolvers/post.resolver");
-const { Comment } = require("../resolvers/comment.resolver");
-const { Subscription } = require("../resolvers/subscription.resolver");
-let db = require("./db");
+// const pubsub = new PubSub();
+const { GraphQLServer } = require("graphql-yoga");
+const { resolvers } = require("../resolvers/index.resolver");
 const { prisma } = require("../prisma/generated/prisma-client/index");
+let db = require("./db");
 
-const pubsub = new PubSub();
-const resolvers = {
-  Query,
-  Mutation,
-  Subscription,
-  Post,
-  User,
-  Comment
-};
 
 const server = new GraphQLServer({
   typeDefs: "./src/schema.graphql",
@@ -25,7 +12,6 @@ const server = new GraphQLServer({
   context: req => ({
     db,
     prisma,
-    pubsub,
     req
   })
 });

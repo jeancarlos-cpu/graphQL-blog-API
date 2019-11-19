@@ -10,7 +10,10 @@ const Query = {
     prisma.users({
       where: {
         OR: [{ name_contains: args.query }, { email_contains: args.query }]
-      }
+      },
+      first: args.first,
+      skip: args.skip,
+      orderBy: args.orderBy
     }),
   posts: (parent, args, { prisma }, info) =>
     prisma.posts({
@@ -21,7 +24,10 @@ const Query = {
             OR: [{ title_contains: args.query }, { body_contains: args.query }]
           }
         ]
-      }
+      },
+      first: args.first,
+      skip: args.skip,
+      orderBy: args.orderBy
     }),
   myPosts: (parent, args, { prisma, req }, info) => {
     const userId = getUserId(req);
@@ -33,11 +39,16 @@ const Query = {
             OR: [{ title_contains: args.query }, { body_contains: args.query }]
           }
         ]
-      }
+      },
+      first: args.first,
+      skip: args.skip,
+      orderBy: args.orderBy
     });
-    
   },
-  comments: (parent, args, { prisma }, info) => prisma.comments(),
+  comments: (parent, args, { prisma }, info) =>
+    prisma.comments({
+      where: { first: args, first, skip: args.skip, orderBy: args.orderBy }
+    }),
   post: async (parent, { id }, { prisma, req }, info) => {
     const userId = getUserId(req, false);
     const posts = await prisma.posts({
