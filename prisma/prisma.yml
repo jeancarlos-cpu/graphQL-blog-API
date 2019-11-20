@@ -1,7 +1,7 @@
 #endpoint: ${env:PRISMA_ENDPOINT}
-endpoint: https://blogging-app-9d8770a311.herokuapp.com/blogging-app/prod
+endpoint: ${env:PRISMA_ENDPOINT}
 datamodel: datamodel.prisma
-secret: supersupersecret
+secret: ${env:PRISMA_SECRET}
 
 generate:
   - generator: javascript-client
