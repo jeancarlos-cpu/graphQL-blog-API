@@ -1,9 +1,9 @@
 const jwt = require("jsonwebtoken");
-const secret = "fhdsjf978saf7dsfb110vvcs780432";
+const secret = process.env.JWT_SECRET;
 
 const getUserId = (req, authRequired = true) => {
-  const token = req.request
-    ? req.request.headers.authorization
+  const token = req.req
+    ? req.req.headers.authorization
     : req.connection.context.Authorization;
     
   if (token) {

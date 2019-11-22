@@ -9,7 +9,9 @@ const Query = {
   users: (parent, args, { prisma }, info) =>
     prisma.users({
       where: {
-        OR: [{ name_contains: args.query }, { email_contains: args.query }]
+        OR: [{ name_contains: args.query }, { 
+          // email_contains: args.query 
+        }]
       },
       first: args.first,
       skip: args.skip,

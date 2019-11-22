@@ -968,7 +968,7 @@ export interface User {
   name: String;
   email: String;
   password: String;
-  updatedAt: DateTimeOutput;
+  updatedAt?: DateTimeOutput;
   createdAt: DateTimeOutput;
 }
 
@@ -1464,7 +1464,7 @@ export interface UserPreviousValues {
   name: String;
   email: String;
   password: String;
-  updatedAt: DateTimeOutput;
+  updatedAt?: DateTimeOutput;
   createdAt: DateTimeOutput;
 }
 

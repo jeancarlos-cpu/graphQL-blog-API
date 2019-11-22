@@ -666,7 +666,7 @@ type User {
   password: String!
   posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post!]
   comments(where: CommentWhereInput, orderBy: CommentOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Comment!]
-  updatedAt: DateTime!
+  updatedAt: DateTime
   createdAt: DateTime!
 }
 
@@ -736,7 +736,7 @@ type UserPreviousValues {
   name: String!
   email: String!
   password: String!
-  updatedAt: DateTime!
+  updatedAt: DateTime
   createdAt: DateTime!
 }
 
