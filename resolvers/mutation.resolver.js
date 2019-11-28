@@ -112,6 +112,9 @@ const Mutation = {
       data,
       where: { id }
     });
+  },
+  uploadFile: async (_, { file }) => {
+    const { createReadStream, filename } = await file;
   }
 };
 

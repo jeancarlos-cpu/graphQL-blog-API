@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const secret = process.env.JWT_SECRET;
 
 const getUserId = (req, authRequired = true) => {
+
   const token = req.req
     ? req.req.headers.authorization
     : req.connection.context.Authorization;
@@ -15,7 +16,7 @@ const getUserId = (req, authRequired = true) => {
     throw new Error("Authentication required");
   }
 
-  return null;
+  return undefined;
 };
 
 module.exports = {

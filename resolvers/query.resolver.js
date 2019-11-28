@@ -9,15 +9,18 @@ const Query = {
   users: (parent, args, { prisma }, info) =>
     prisma.users({
       where: {
-        OR: [{ name_contains: args.query }, { 
-          // email_contains: args.query 
-        }]
+        OR: [
+          { name_contains: args.query },
+          {
+            // email_contains: args.query
+          }
+        ]
       },
       first: args.first,
       skip: args.skip,
       orderBy: args.orderBy
     }),
-  posts: (parent, args, { prisma }, info) =>
+  posts: (parent, args, { prisma, req }, info) => 
     prisma.posts({
       where: {
         AND: [
@@ -30,7 +33,7 @@ const Query = {
       first: args.first,
       skip: args.skip,
       orderBy: args.orderBy
-    }),
+  }),
   myPosts: (parent, args, { prisma, req }, info) => {
     const userId = getUserId(req);
     return prisma.posts({
@@ -49,7 +52,9 @@ const Query = {
   },
   comments: (parent, args, { prisma }, info) =>
     prisma.comments({
-      where: { first: args, first, skip: args.skip, orderBy: args.orderBy }
+      first: args.first,
+      skip: args.skip,
+      orderBy: args.orderBy
     }),
   post: async (parent, { id }, { prisma, req }, info) => {
     const userId = getUserId(req, false);
@@ -61,7 +66,8 @@ const Query = {
     });
     if (!posts.length) throw new Error("post not found");
     return posts[0];
-  }
+  },
+  uploads: (parent, args) => {}
 };
 
 module.exports = {

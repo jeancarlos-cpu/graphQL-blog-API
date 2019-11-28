@@ -23,6 +23,7 @@ schema = gql`
     ): [Post]
     comments(first: Int, skip: Int, orderBy: CommentOrderByInput): [Comment]
     post(id: ID!): Post!
+    uploads: [File]
   }
 
   type Mutation {
@@ -36,6 +37,7 @@ schema = gql`
     deleteComment(id: ID!): Comment!
     updateComment(id: ID!, data: updateCommentInput): Comment!
     login(data: userCredentialsInput!): userPayload!
+    uploadFile(file: Upload!): Boolean!
   }
 
   input userCredentialsInput {
@@ -163,6 +165,12 @@ schema = gql`
     updatedAt_DESC
     createdAt_ASC
     createdAt_DESC
+  }
+
+  type File {
+    filename: String!
+    mimetype: String!
+    encoding: String!
   }
 `;
 
