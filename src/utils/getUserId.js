@@ -2,12 +2,12 @@ const jwt = require("jsonwebtoken");
 const secret = process.env.JWT_SECRET;
 
 const getUserId = (req, authRequired = true) => {
-
-  const token = req.req
+  const token = req.req.headers.authorization
     ? req.req.headers.authorization
     : req.connection.context.Authorization;
-    
-  if (token) {
+  console.log(token);
+
+  if (token !== "null") {
     const decoded = jwt.verify(token, secret);
     return decoded.userId;
   }
@@ -16,7 +16,7 @@ const getUserId = (req, authRequired = true) => {
     throw new Error("Authentication required");
   }
 
-  return undefined;
+  return null;
 };
 
 module.exports = {

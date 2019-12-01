@@ -6,21 +6,21 @@ const Query = {
     if (!userId) throw new Error("unable to query");
     return prisma.user({ id: userId });
   },
-  users: (parent, args, { prisma }, info) =>
-    prisma.users({
+  users: (parent, args, { prisma }, info) =>{
+    return prisma.users({
       where: {
         OR: [
           { name_contains: args.query },
           {
-            // email_contains: args.query
+            id: args.query
           }
         ]
       },
       first: args.first,
       skip: args.skip,
       orderBy: args.orderBy
-    }),
-  posts: (parent, args, { prisma, req }, info) => 
+    })},
+  posts: (parent, args, { prisma, req }, info) =>
     prisma.posts({
       where: {
         AND: [
@@ -33,7 +33,7 @@ const Query = {
       first: args.first,
       skip: args.skip,
       orderBy: args.orderBy
-  }),
+    }),
   myPosts: (parent, args, { prisma, req }, info) => {
     const userId = getUserId(req);
     return prisma.posts({
