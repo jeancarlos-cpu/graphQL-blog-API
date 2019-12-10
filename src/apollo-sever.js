@@ -32,7 +32,7 @@ const corsOptions = {
 const app = express();
 app.use(helmet());
 app.use(csp);
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 app.use(limiter);
 app.use(compression());
 
