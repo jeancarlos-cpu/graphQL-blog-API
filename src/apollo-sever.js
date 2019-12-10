@@ -20,7 +20,7 @@ const csp = helmet.contentSecurityPolicy({
   }
 });
 
-const whitelist = ["https://jeancarlos-cpu.github.io/blog"];
+const whitelist = ["https://jeancarlos-cpu.github.io/"];
 
 const corsOptions = {
   origin: (origin, callback) =>
