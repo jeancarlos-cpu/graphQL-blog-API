@@ -13,12 +13,12 @@ const limiter = rateLimit({
   max: 100 // limit each IP to 100 requests per windowMs
 });
 
-const csp = helmet.contentSecurityPolicy({
-  directives: {
-    defaultSrc: ["'self'"],
-    styleSrc: ["'seft'"]
-  }
-});
+// const csp = helmet.contentSecurityPolicy({
+//   directives: {
+//     defaultSrc: ["'self'"],
+//     styleSrc: ["'self'", "192.168.99.100:4466/"]
+//   }
+// });
 
 const whitelist = ["https://jeancarlos-cpu.github.io/"];
 
@@ -30,9 +30,9 @@ const corsOptions = {
 };
 
 const app = express();
-app.use(helmet());
-app.use(csp);
-// app.use(cors(corsOptions));
+// app.use(helmet());
+// app.use(csp);
+app.use(cors(corsOptions));
 app.use(limiter);
 app.use(compression());
 
@@ -46,7 +46,7 @@ const server = new ApolloServer({
 });
 
 server.applyMiddleware({ app });
-app.listen(4000, () => console.log("server up."));
+app.listen({ port: process.env.PORT || 4000 }, () => console.log("server up."));
 
 // server
 //   .listen({ port: process.env.PORT || 4000 })
