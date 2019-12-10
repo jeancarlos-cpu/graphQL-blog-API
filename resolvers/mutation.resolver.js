@@ -7,6 +7,8 @@ const Mutation = {
   createUser: async (parent, { data }, { prisma }, info) => {
     const emailTaken = await prisma.$exists.user({ email: data.email });
     if (emailTaken) throw new Error("Email taken.");
+    if (data.name.length < 3 || data.password.length < 3)
+      throw new Error("credentials must have at least 3 char");
     const hash = await hashPassword(data.password);
     const user = await prisma.createUser({ ...data, password: hash });
     return {

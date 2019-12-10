@@ -1,7 +1,40 @@
-const { ApolloServer } = require("apollo-server");
+const { ApolloServer } = require("apollo-server-express");
+const express = require("express");
+const cors = require("cors");
+const helmet = require("helmet");
+const compression = require("compression");
+const rateLimit = require("express-rate-limit");
 const { resolvers } = require("../resolvers/index.resolver");
 const { prisma } = require("../prisma/generated/prisma-client/index");
 const { schema } = require("./squema");
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+
+const csp = helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"],
+    styleSrc: ["'seft'"]
+  }
+});
+
+const whitelist = ["https://jeancarlos-cpu.github.io/blog"];
+
+const corsOptions = {
+  origin: (origin, callback) =>
+    whitelist.indexOf(origin) !== -1
+      ? callback(null, true)
+      : callback(new Error("Cross-origin resource sharing not allowed!"))
+};
+
+const app = express();
+app.use(helmet());
+app.use(csp);
+app.use(cors(corsOptions));
+app.use(limiter);
+app.use(compression());
 
 const server = new ApolloServer({
   typeDefs: schema,
@@ -12,9 +45,12 @@ const server = new ApolloServer({
   })
 });
 
-server
-  .listen({ port: process.env.PORT || 4000 })
-  .then(console.log("its working!"));
+server.applyMiddleware({ app });
+app.listen(4000, () => console.log("server up."));
+
+// server
+//   .listen({ port: process.env.PORT || 4000 })
+//   .then(console.log("its working!"));
 
 // const app = express();
 // // app.use("/text", (res, req) => {
@@ -28,7 +64,5 @@ server
 //   console.log(err);
 //   res.download("src/files/enade.pdf", "enade.pdf");
 //   });
-  
+
 // })
-// server.applyMiddleware({ app });
-// app.listen(4000, () => console.log("server up."));
